@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - Academic Advising Scheduler</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        header { background: #1a3a5c; color: white; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+        header h1 { font-size: 1.4rem; }
+        nav a { color: #aec6e8; text-decoration: none; margin-left: 20px; font-size: 0.95rem; }
+        nav a:hover { color: white; }
+        .container { max-width: 560px; margin: 72px auto; padding: 0 24px; text-align: center; }
+        .icon { font-size: 4rem; margin-bottom: 16px; }
+        h2 { color: #2e7d32; font-size: 1.8rem; margin-bottom: 10px; }
+        .message { color: #555; font-size: 1.05rem; margin-bottom: 36px; line-height: 1.6; }
+        .btn { display: inline-block; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 1rem; font-weight: 600; margin: 6px; }
+        .btn-primary { background: #1a3a5c; color: white; }
+        .btn-primary:hover { background: #2e6da4; }
+        .btn-secondary { background: #e9eef4; color: #333; }
+        .btn-secondary:hover { background: #d0dae6; }
+        footer { text-align: center; padding: 20px; background: #e9eef4; color: #888; font-size: 0.85rem; margin-top: 60px; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>SJSU Academic Advising Scheduler</h1>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/slots}">Available Slots</a>
+        <a th:href="@{/appointments}">My Appointments</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="icon">&#9989;</div>
+    <h2>Appointment Confirmed!</h2>
+    <p class="message" th:text="${message}">Your appointment has been successfully booked.</p>
+    <a th:href="@{/appointments}" class="btn btn-primary">View My Appointments</a>
+    <a th:href="@{/slots}" class="btn btn-secondary">Book Another Slot</a>
+</div>
+
+<footer>
+    &copy; 2026 SJSU Academic Advising Scheduling System &mdash; CMPE 172 Term Project
+</footer>
+</body>
+</html>

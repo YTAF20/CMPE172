@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3 Design Notes – Academic Advising Scheduler</title>
+<style>
+  body {
+    font-family: 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.7;
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 32px;
+    color: #111;
+  }
+  h1 { font-size: 16pt; text-align: center; margin-bottom: 4px; }
+  h2 { font-size: 13pt; margin-top: 28px; margin-bottom: 6px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  p  { margin-bottom: 10px; text-indent: 2em; }
+  code { font-family: Consolas, monospace; font-size: 10.5pt; background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+  .meta { text-align: center; font-size: 11pt; color: #444; margin-bottom: 28px; }
+  .diagram {
+    font-family: Consolas, monospace;
+    font-size: 10pt;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 16px 24px;
+    border-radius: 6px;
+    margin: 14px 0;
+    line-height: 1.8;
+  }
+  ul { margin: 6px 0 10px 2em; }
+  li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<h1>CMPE 172-02 M3 Design Notes</h1>
+<h1>Academic Advising Appointment Scheduling System</h1>
+<p class="meta">
+  Akif Farook &nbsp;|&nbsp; Prof. Daphne Chen &nbsp;|&nbsp; CMPE 172-02 &nbsp;|&nbsp; March 11, 2026
+</p>
+
+<h2>1. Request Flow Through Application Layers</h2>
+
+<p>
+  This application follows a strict four-layer architecture:
+  <strong>Controller → Service → Repository → Database</strong>.
+  Every incoming HTTP request passes through each layer in sequence before a response is returned.
+  No layer skips another, which keeps the system modular and testable.
+</p>
+
+<div class="diagram">
+  Browser / Client
+       |
+       |  HTTP Request (e.g., GET /slots or POST /appointments/book)
+       v
+  +----------------------+
+  |   Controller Layer   |   (SlotController, AppointmentController, HomeController)
+  |  Spring @Controller  |   - Parses request params / path variables
+  |                      |   - Calls the appropriate Service method
+  |                      |   - Adds data to the Model for the view
+  +----------+-----------+
+             |
+             v
+  +----------------------+
+  |   Service Layer      |   (TimeSlotService, AppointmentService)
+  |  @Service            |   - Enforces business rules (e.g., slot must be open)
+  |  @Transactional      |   - Coordinates multiple Repository calls
+  |                      |   - Marked with @Transactional for atomic operations
+  +----------+-----------+
+             |
+             v
+  +----------------------+
+  |  Repository Layer    |   (TimeSlotRepository, AppointmentRepository, UserRepository)
+  |  @Repository         |   - Executes raw SQL via Spring JdbcTemplate
+  |  JdbcTemplate        |   - Maps ResultSet rows to model objects (RowMapper)
+  |                      |   - No ORM; all SQL is hand-written
+  +----------+-----------+
+             |
+             v
+  +----------------------+
+  |   SQLite Database    |   (advising.db)
+  |                      |   - Tables: users, advisors, time_slots, appointments
+  |                      |   - Schema initialized from schema.sql on startup
+  +----------------------+
+             |
+             v
+  Thymeleaf template rendered → HTTP Response to Browser
+</div>
+
+<p>
+  As a concrete example, when a student submits the booking form
+  (<code>POST /appointments/book</code>), the following sequence occurs:
+</p>
+<ul>
+  <li><strong>AppointmentController</strong> receives the POST, extracts <code>slotId</code> and <code>studId</code> from the form body, and calls <code>appointmentService.bookAppointment(slotId, studId)</code>.</li>
+  <li><strong>AppointmentService</strong> opens a transaction (<code>@Transactional</code>), calls <code>TimeSlotRepository.findById(slotId)</code> to verify the slot is still open, then calls <code>TimeSlotRepository.markSlotBooked()</code> and <code>AppointmentRepository.save()</code> atomically.</li>
+  <li><strong>TimeSlotRepository / AppointmentRepository</strong> execute the corresponding SQL UPDATE and INSERT statements via <code>JdbcTemplate</code> against the SQLite database file.</li>
+  <li>The controller receives a <code>true</code> result, adds a success message to the <code>Model</code>, and returns the <code>"confirmation"</code> view name. Thymeleaf renders <code>confirmation.html</code> and sends the response to the browser.</li>
+</ul>
+
+<p>
+  This layered approach ensures that the controller never touches the database directly,
+  the service never concerns itself with HTTP request parsing, and the repository never
+  contains business logic. Each layer has a single, well-defined responsibility.
+</p>
+
+<h2>2. Page Controller vs. Front Controller Pattern</h2>
+
+<p>
+  This application uses the <strong>Page Controller</strong> pattern rather than a single
+  Front Controller. In the Page Controller pattern, each logical page or endpoint is
+  handled by its own dedicated controller class. In this project there are three page
+  controllers:
+</p>
+<ul>
+  <li><code>HomeController</code> — handles <code>GET /</code> (home page) and <code>GET /health</code>.</li>
+  <li><code>SlotController</code> — handles <code>GET /slots</code> (slot list) and <code>GET /slots/{id}/book</code> (booking form).</li>
+  <li><code>AppointmentController</code> — handles <code>GET /appointments</code> (appointment list), <code>POST /appointments/book</code> (submit booking), and <code>POST /appointments/{id}/cancel</code> (cancel).</li>
+</ul>
+
+<p>
+  The Page Controller pattern was chosen because each page in this system has a narrow,
+  focused scope: browsing slots, booking a slot, and viewing appointments are three
+  distinct user workflows with little shared pre-processing logic. Page controllers keep
+  each feature isolated, which makes the code easier to read and modify without
+  introducing a large centralized routing class.
+</p>
+
+<p>
+  A Front Controller (such as a single <code>DispatcherController</code> that routes all
+  requests) would be more appropriate for systems that need to enforce uniform
+  cross-cutting behavior across every request — for example, authentication checks,
+  logging middleware, or request validation before dispatch. Spring Boot's own
+  <code>DispatcherServlet</code> already fulfills this role at the framework level
+  (routing all requests to the correct <code>@Controller</code>), so adding a
+  custom application-level front controller here would be redundant.
+</p>
+
+<p>
+  In summary, the Page Controller pattern suits this project because the pages are
+  logically independent, the application is small-to-medium in scope, and the framework's
+  built-in dispatcher provides the centralized routing already.
+</p>
+
+</body>
+</html>
