@@ -20,13 +20,12 @@
   <text x="160" y="194" font-size="12" fill="#333"><tspan font-weight="bold" fill="#1a3a5c">Date &amp; Time: </tspan>2026-03-20 09:00 – 09:30</text>
   <text x="160" y="216" font-size="12" fill="#333"><tspan font-weight="bold" fill="#1a3a5c">Slot ID: </tspan>1</text>
 
-  <!-- Student dropdown label -->
-  <text x="148" y="260" font-size="12" fill="#1a3a5c" font-weight="bold">Select Your Name (Student)</text>
+  <!-- Text input label -->
+  <text x="148" y="260" font-size="12" fill="#1a3a5c" font-weight="bold">Your Full Name</text>
 
-  <!-- Dropdown -->
+  <!-- Text input -->
   <rect x="148" y="270" width="520" height="36" fill="white" rx="5" stroke="#cdd5df" stroke-width="1.5"/>
-  <text x="164" y="293" font-size="12" fill="#aaa">-- Choose student --</text>
-  <polygon points="640,282 650,282 645,294" fill="#888"/>
+  <text x="164" y="293" font-size="12" fill="#aaa">Enter your full name</text>
 
   <!-- Buttons -->
   <rect x="148" y="326" width="320" height="38" fill="#1a3a5c" rx="6"/>

@@ -1,59 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Appointments - Academic Advising Scheduler</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
-        header { background: #1a3a5c; color: white; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
-        header h1 { font-size: 1.4rem; }
-        nav a { color: #aec6e8; text-decoration: none; margin-left: 20px; font-size: 0.95rem; }
-        nav a:hover { color: white; }
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
-        h2 { color: #1a3a5c; margin-bottom: 8px; }
-        .subtitle { color: #666; margin-bottom: 28px; font-size: 0.95rem; }
-        .alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; }
-        .alert-success { background: #e6f4ea; color: #2e7d32; border-left: 4px solid #4caf50; }
-        .alert-error { background: #fdecea; color: #b71c1c; border-left: 4px solid #e53935; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-        thead { background: #1a3a5c; color: white; }
-        th, td { padding: 14px 18px; text-align: left; font-size: 0.93rem; }
-        tbody tr:nth-child(even) { background: #f5f7fa; }
-        tbody tr:hover { background: #e8f0fb; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
-        .badge-scheduled  { background: #e3f2fd; color: #1565c0; }
-        .badge-cancelled  { background: #fce4ec; color: #880e4f; }
-        .badge-completed  { background: #e8f5e9; color: #1b5e20; }
-        .btn-cancel { background: #fdecea; color: #b71c1c; padding: 6px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; }
-        .btn-cancel:hover { background: #e53935; color: white; }
-        .empty { text-align: center; padding: 48px; color: #999; }
-        footer { text-align: center; padding: 20px; background: #e9eef4; color: #888; font-size: 0.85rem; margin-top: 60px; }
-    </style>
+    <title>Appointments</title>
 </head>
 <body>
-<header>
-    <h1>SJSU Academic Advising Scheduler</h1>
+    <h1>Academic Advising Appointment Scheduler</h1>
     <nav>
-        <a th:href="@{/}">Home</a>
-        <a th:href="@{/slots}">Available Slots</a>
-        <a th:href="@{/appointments}">My Appointments</a>
+        <a th:href="@{/}">Home</a> |
+        <a th:href="@{/slots}">Available Slots</a> |
+        <a th:href="@{/appointments}">Appointments</a>
     </nav>
-</header>
+    <hr/>
 
-<div class="container">
     <h2>All Appointments</h2>
-    <p class="subtitle">View and manage scheduled advising appointments.</p>
 
-    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <p th:if="${message}" style="color: green;" th:text="${message}"></p>
+    <p th:if="${error}" style="color: red;" th:text="${error}"></p>
 
-    <div th:if="${#lists.isEmpty(appointments)}" class="empty">
-        <p>No appointments found. <a th:href="@{/slots}">Browse available slots</a> to book one.</p>
-    </div>
+    <p th:if="${#lists.isEmpty(appointments)}">
+        No appointments yet. <a th:href="@{/slots}">Book one here.</a>
+    </p>
 
-    <table th:unless="${#lists.isEmpty(appointments)}">
+    <table border="1" th:unless="${#lists.isEmpty(appointments)}">
         <thead>
             <tr>
                 <th>ID</th>
@@ -63,7 +31,6 @@
                 <th>End Time</th>
                 <th>Status</th>
                 <th>Booked On</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -73,28 +40,10 @@
                 <td th:text="${app.advisorName}"></td>
                 <td th:text="${app.startTime}"></td>
                 <td th:text="${app.endTime}"></td>
-                <td>
-                    <span class="badge"
-                          th:classappend="${app.status == 'SCHEDULED'} ? 'badge-scheduled' : (${app.status == 'CANCELLED'} ? 'badge-cancelled' : 'badge-completed')"
-                          th:text="${app.status}"></span>
-                </td>
+                <td th:text="${app.status}"></td>
                 <td th:text="${app.createTime}"></td>
-                <td>
-                    <form th:if="${app.status == 'SCHEDULED'}"
-                          th:action="@{/appointments/{id}/cancel(id=${app.appId})}"
-                          method="post"
-                          onsubmit="return confirm('Cancel this appointment?')">
-                        <button type="submit" class="btn-cancel">Cancel</button>
-                    </form>
-                    <span th:unless="${app.status == 'SCHEDULED'}">&mdash;</span>
-                </td>
             </tr>
         </tbody>
     </table>
-</div>
-
-<footer>
-    &copy; 2026 SJSU Academic Advising Scheduling System &mdash; CMPE 172 Term Project
-</footer>
 </body>
 </html>

@@ -1,0 +1,87 @@
+CMPE 172-02 M3 Design Notes
+Academic Advising Appointment Scheduling System
+Akif Farook | Prof. Daphne Chen | March 11, 2026
+
+================================================================================
+1. REQUEST FLOW THROUGH APPLICATION LAYERS
+================================================================================
+
+This application uses a strict four-layer architecture:
+Controller -> Service -> Repository -> In-Memory Data Store
+
+When a request arrives, it flows through each layer in order. No layer ever
+skips another, which keeps responsibilities clearly separated.
+
+Example: Student submits the booking form (POST /appointments/book)
+
+  1. AppointmentController receives the POST request. It extracts the slotId
+     (from the hidden form field) and studentName (from the text input), then
+     calls appointmentService.bookAppointment(slotId, studentName).
+
+  2. AppointmentService enforces the business rule: it asks TimeSlotRepository
+     whether the slot exists and is still open. If not, it returns false and
+     the controller redirects back to /slots with an error message. If the slot
+     is open, it calls timeSlotRepository.markSlotBooked(slotId) to close the
+     slot, then builds an Appointment object and passes it to
+     appointmentRepository.save(appointment).
+
+  3. TimeSlotRepository and AppointmentRepository manage in-memory lists. The
+     repository layer is the only place data is read or written; the service
+     and controller never access the data directly.
+
+  4. AppointmentService returns true to the controller. The controller adds a
+     success message to the Model and returns the view name "confirmation".
+     Spring's DispatcherServlet hands the model to Thymeleaf, which renders
+     confirmation.html and sends the HTTP response to the browser.
+
+Diagram:
+
+  Browser
+    |  HTTP Request
+    v
+  Controller  (parses request, calls service, picks view)
+    |
+    v
+  Service     (business logic, coordinates repositories)
+    |
+    v
+  Repository  (reads/writes in-memory data structures)
+    |
+    v
+  In-Memory List / Map  (mock data store)
+    |
+    v
+  Thymeleaf view rendered -> HTTP Response -> Browser
+
+================================================================================
+2. PATTERN EXPLANATION: PAGE CONTROLLER vs. FRONT CONTROLLER
+================================================================================
+
+This application uses the Page Controller pattern. In Page Controller, each
+page or group of related pages has its own dedicated controller class that
+handles the HTTP request, interacts with the service layer, and selects the
+appropriate view to render.
+
+This project has three page controllers:
+
+  - HomeController     handles GET /
+  - SlotController     handles GET /slots and GET /slots/{id}/book
+  - AppointmentController  handles GET /appointments and POST /appointments/book
+
+The Page Controller pattern was chosen because each page in this system has a
+narrow, independent purpose. Students browsing slots, filling a booking form,
+and viewing appointments are three separate workflows that share no pre-
+processing logic. Keeping them in separate controller classes makes each one
+easy to read and modify without touching the others.
+
+A Front Controller would route all requests through a single centralized class
+before dispatching them. This is better suited for systems that need uniform
+cross-cutting behavior applied to every request (such as authentication checks
+or request logging middleware). Spring Boot's own DispatcherServlet already
+acts as a framework-level front controller and routes each request to the
+correct @Controller class automatically, so adding a custom application-level
+front controller here would be redundant and add unnecessary complexity.
+
+In summary, Page Controller fits this project because the pages are logically
+independent, the application scope is small, and the framework already provides
+the centralized routing layer.

@@ -3,7 +3,6 @@ package com.advising.scheduler.model;
 public class Appointment {
     private Long appId;
     private Long slotId;
-    private Long studId;
     private String studentName;
     private String advisorName;
     private String startTime;
@@ -16,9 +15,6 @@ public class Appointment {
 
     public Long getSlotId() { return slotId; }
     public void setSlotId(Long slotId) { this.slotId = slotId; }
-
-    public Long getStudId() { return studId; }
-    public void setStudId(Long studId) { this.studId = studId; }
 
     public String getStudentName() { return studentName; }
     public void setStudentName(String studentName) { this.studentName = studentName; }
