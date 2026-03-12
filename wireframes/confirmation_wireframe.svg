@@ -1,33 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" font-family="Arial, sans-serif">
-  <rect width="800" height="520" fill="#f5f7fa"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="320" font-family="Times New Roman, serif">
+  <rect width="700" height="320" fill="white"/>
 
-  <!-- Header -->
-  <rect x="0" y="0" width="800" height="52" fill="#d0d8e4"/>
-  <text x="20" y="32" font-size="14" fill="#333" font-weight="bold">[ SJSU Academic Advising Scheduler ]</text>
-  <text x="530" y="32" font-size="12" fill="#666">[ Home ]  [ Slots ]  [ Appointments ]</text>
+  <!-- H1 -->
+  <text x="20" y="36" font-size="22" font-weight="bold" fill="black">Academic Advising Appointment Scheduler</text>
 
-  <!-- Centered confirmation content -->
-  <!-- Checkmark icon placeholder -->
-  <circle cx="400" cy="160" r="48" fill="#e6f4ea" stroke="#4caf50" stroke-width="3"/>
-  <text x="400" y="178" font-size="36" text-anchor="middle" fill="#2e7d32">&#10003;</text>
+  <!-- Nav -->
+  <text x="20" y="60" font-size="14" fill="black">
+    <tspan text-decoration="underline" fill="blue">Home</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Available Slots</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Appointments</tspan>
+  </text>
 
-  <!-- Title -->
-  <text x="400" y="240" font-size="22" fill="#2e7d32" font-weight="bold" text-anchor="middle">Appointment Confirmed!</text>
+  <!-- HR -->
+  <line x1="20" y1="72" x2="680" y2="72" stroke="black" stroke-width="1"/>
 
-  <!-- Message text line placeholder -->
-  <rect x="250" y="256" width="300" height="16" fill="#d4edda" rx="4"/>
-  <text x="400" y="268" font-size="12" fill="#555" text-anchor="middle">Your appointment has been successfully booked.</text>
+  <!-- H2 -->
+  <text x="20" y="98" font-size="18" font-weight="bold" fill="black">Booking Confirmed</text>
 
-  <!-- Buttons -->
-  <rect x="230" y="296" width="180" height="38" fill="#1a3a5c" rx="6"/>
-  <text x="320" y="320" font-size="12" fill="white" text-anchor="middle" font-weight="bold">View My Appointments</text>
+  <!-- Message -->
+  <text x="20" y="124" font-size="14" fill="black">Your appointment has been successfully booked.</text>
 
-  <rect x="428" y="296" width="142" height="38" fill="#e9eef4" rx="6" stroke="#ccc" stroke-width="1"/>
-  <text x="499" y="320" font-size="12" fill="#555" text-anchor="middle">Book Another Slot</text>
+  <!-- br + links -->
+  <text x="20" y="158" font-size="14" fill="black">
+    <tspan text-decoration="underline" fill="blue">View Appointments</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Book Another Slot</tspan>
+  </text>
 
-  <!-- Footer -->
-  <rect x="0" y="490" width="800" height="30" fill="#d0d8e4"/>
-  <text x="400" y="510" font-size="10" fill="#888" text-anchor="middle">© 2026 SJSU Academic Advising Scheduling System — CMPE 172 Term Project</text>
-
-  <text x="400" y="476" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: Booking Confirmation Page (POST /appointments/book → confirmation)</text>
+  <!-- Label -->
+  <text x="350" y="300" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: Booking Confirmation (POST /appointments/book)</text>
 </svg>

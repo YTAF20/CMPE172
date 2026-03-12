@@ -1,42 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" font-family="Arial, sans-serif">
-  <rect width="800" height="520" fill="#f5f7fa"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="380" font-family="Times New Roman, serif">
+  <rect width="700" height="380" fill="white"/>
 
-  <!-- Header -->
-  <rect x="0" y="0" width="800" height="52" fill="#d0d8e4"/>
-  <text x="20" y="32" font-size="14" fill="#333" font-weight="bold">[ SJSU Academic Advising Scheduler ]</text>
-  <text x="530" y="32" font-size="12" fill="#666">[ Home ]  [ Slots ]  [ Appointments ]</text>
+  <!-- H1 -->
+  <text x="20" y="36" font-size="22" font-weight="bold" fill="black">Academic Advising Appointment Scheduler</text>
 
-  <!-- Page title -->
-  <text x="220" y="90" font-size="18" fill="#1a3a5c" font-weight="bold" text-anchor="middle">Book Appointment</text>
-  <text x="220" y="110" font-size="12" fill="#888" text-anchor="middle">Confirm your appointment details below.</text>
+  <!-- Nav -->
+  <text x="20" y="60" font-size="14" fill="black">
+    <tspan text-decoration="underline" fill="blue">Home</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Available Slots</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Appointments</tspan>
+  </text>
 
-  <!-- Form card -->
-  <rect x="120" y="126" width="560" height="310" fill="white" rx="10" stroke="#dde3ec" stroke-width="1"/>
+  <!-- HR -->
+  <line x1="20" y1="72" x2="680" y2="72" stroke="black" stroke-width="1"/>
 
-  <!-- Slot summary box -->
-  <rect x="140" y="146" width="520" height="90" fill="#e8f0fb" rx="6"/>
-  <line x1="140" y1="146" x2="140" y2="236" stroke="#2e6da4" stroke-width="4"/>
-  <text x="160" y="172" font-size="12" fill="#333"><tspan font-weight="bold" fill="#1a3a5c">Advisor: </tspan>Dr. Dana Rivera</text>
-  <text x="160" y="194" font-size="12" fill="#333"><tspan font-weight="bold" fill="#1a3a5c">Date &amp; Time: </tspan>2026-03-20 09:00 – 09:30</text>
-  <text x="160" y="216" font-size="12" fill="#333"><tspan font-weight="bold" fill="#1a3a5c">Slot ID: </tspan>1</text>
+  <!-- H2 -->
+  <text x="20" y="98" font-size="18" font-weight="bold" fill="black">Book Appointment</text>
 
-  <!-- Text input label -->
-  <text x="148" y="260" font-size="12" fill="#1a3a5c" font-weight="bold">Your Full Name</text>
+  <!-- Slot info paragraphs -->
+  <text x="20" y="124" font-size="14" fill="black"><tspan font-weight="bold">Advisor:</tspan> Dr. Dana Rivera</text>
+  <text x="20" y="146" font-size="14" fill="black"><tspan font-weight="bold">Time:</tspan> 2026-03-20 09:00 - 2026-03-20 09:30</text>
+
+  <!-- Form: label -->
+  <text x="20" y="178" font-size="14" fill="black">Your Full Name:</text>
 
   <!-- Text input -->
-  <rect x="148" y="270" width="520" height="36" fill="white" rx="5" stroke="#cdd5df" stroke-width="1.5"/>
-  <text x="164" y="293" font-size="12" fill="#aaa">Enter your full name</text>
+  <rect x="20" y="186" width="300" height="24" fill="white" stroke="black" stroke-width="1"/>
+  <text x="26" y="203" font-size="12" fill="#999">Enter your full name</text>
 
-  <!-- Buttons -->
-  <rect x="148" y="326" width="320" height="38" fill="#1a3a5c" rx="6"/>
-  <text x="308" y="350" font-size="13" fill="white" text-anchor="middle" font-weight="bold">Confirm Booking</text>
+  <!-- Submit button + Cancel link -->
+  <rect x="20" y="228" width="130" height="26" fill="#ddd" stroke="black" stroke-width="1"/>
+  <text x="28" y="246" font-size="13" fill="black">Confirm Booking</text>
+  <text x="162" y="246" font-size="14" fill="blue" text-decoration="underline">Cancel</text>
 
-  <rect x="480" y="326" width="140" height="38" fill="#e9eef4" rx="6"/>
-  <text x="550" y="350" font-size="13" fill="#555" text-anchor="middle">Cancel</text>
-
-  <!-- Footer -->
-  <rect x="0" y="490" width="800" height="30" fill="#d0d8e4"/>
-  <text x="400" y="510" font-size="10" fill="#888" text-anchor="middle">© 2026 SJSU Academic Advising Scheduling System — CMPE 172 Term Project</text>
-
-  <text x="400" y="476" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: Book Appointment Form (GET /slots/{id}/book)</text>
+  <!-- Label -->
+  <text x="350" y="360" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: Book Appointment Form (GET /slots/{id}/book)</text>
 </svg>

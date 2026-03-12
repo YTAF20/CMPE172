@@ -1,74 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" font-family="Arial, sans-serif">
-  <rect width="800" height="520" fill="#f5f7fa"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="400" font-family="Times New Roman, serif">
+  <rect width="700" height="400" fill="white"/>
 
-  <!-- Header -->
-  <rect x="0" y="0" width="800" height="52" fill="#d0d8e4"/>
-  <text x="20" y="32" font-size="14" fill="#333" font-weight="bold">[ SJSU Academic Advising Scheduler ]</text>
-  <text x="530" y="32" font-size="12" fill="#666">[ Home ]  [ Slots ]  [ Appointments ]</text>
+  <!-- H1 -->
+  <text x="20" y="36" font-size="22" font-weight="bold" fill="black">Academic Advising Appointment Scheduler</text>
 
-  <!-- Page title -->
-  <text x="30" y="84" font-size="18" fill="#1a3a5c" font-weight="bold">Available Time Slots</text>
-  <text x="30" y="104" font-size="12" fill="#888">Choose an open slot below to schedule your advising appointment.</text>
+  <!-- Nav -->
+  <text x="20" y="60" font-size="14" fill="black">
+    <tspan text-decoration="underline" fill="blue">Home</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Available Slots</tspan>
+    <tspan fill="black"> | </tspan>
+    <tspan text-decoration="underline" fill="blue">Appointments</tspan>
+  </text>
 
-  <!-- Table header -->
-  <rect x="30" y="120" width="740" height="36" fill="#1a3a5c" rx="4"/>
-  <text x="48"  y="143" font-size="12" fill="white">#</text>
-  <text x="90"  y="143" font-size="12" fill="white">Advisor</text>
-  <text x="240" y="143" font-size="12" fill="white">Start Time</text>
-  <text x="390" y="143" font-size="12" fill="white">End Time</text>
-  <text x="530" y="143" font-size="12" fill="white">Status</text>
-  <text x="650" y="143" font-size="12" fill="white">Action</text>
+  <!-- HR -->
+  <line x1="20" y1="72" x2="680" y2="72" stroke="black" stroke-width="1"/>
+
+  <!-- H2 -->
+  <text x="20" y="98" font-size="18" font-weight="bold" fill="black">Available Time Slots</text>
+
+  <!-- Table with border -->
+  <!-- Outer border -->
+  <rect x="20" y="112" width="660" height="200" fill="white" stroke="black" stroke-width="1"/>
+
+  <!-- Header row -->
+  <rect x="20" y="112" width="660" height="28" fill="#ddd" stroke="black" stroke-width="1"/>
+  <line x1="150" y1="112" x2="150" y2="312" stroke="black" stroke-width="1"/>
+  <line x1="320" y1="112" x2="320" y2="312" stroke="black" stroke-width="1"/>
+  <line x1="460" y1="112" x2="460" y2="312" stroke="black" stroke-width="1"/>
+  <line x1="570" y1="112" x2="570" y2="312" stroke="black" stroke-width="1"/>
+  <text x="28"  y="131" font-size="13" font-weight="bold" fill="black">ID</text>
+  <text x="158" y="131" font-size="13" font-weight="bold" fill="black">Advisor</text>
+  <text x="328" y="131" font-size="13" font-weight="bold" fill="black">Start Time</text>
+  <text x="468" y="131" font-size="13" font-weight="bold" fill="black">End Time</text>
+  <text x="578" y="131" font-size="13" font-weight="bold" fill="black">Action</text>
 
   <!-- Row 1 -->
-  <rect x="30" y="156" width="740" height="38" fill="white"/>
-  <text x="48"  y="180" font-size="11" fill="#333">1</text>
-  <text x="90"  y="180" font-size="11" fill="#333">Dr. Dana Rivera</text>
-  <text x="240" y="180" font-size="11" fill="#333">2026-03-20 09:00</text>
-  <text x="390" y="180" font-size="11" fill="#333">09:30</text>
-  <rect x="530" y="163" width="46" height="20" fill="#e6f4ea" rx="10"/>
-  <text x="541" y="177" font-size="10" fill="#2e7d32" font-weight="bold">Open</text>
-  <rect x="650" y="163" width="60" height="22" fill="#1a3a5c" rx="4"/>
-  <text x="669" y="178" font-size="11" fill="white">Book</text>
+  <line x1="20" y1="140" x2="680" y2="140" stroke="black" stroke-width="1"/>
+  <text x="28"  y="157" font-size="13" fill="black">1</text>
+  <text x="158" y="157" font-size="13" fill="black">Dr. Dana Rivera</text>
+  <text x="328" y="157" font-size="13" fill="black">2026-03-20 09:00</text>
+  <text x="468" y="157" font-size="13" fill="black">09:30</text>
+  <text x="578" y="157" font-size="13" fill="blue" text-decoration="underline">Book</text>
 
   <!-- Row 2 -->
-  <rect x="30" y="194" width="740" height="38" fill="#f5f7fa"/>
-  <text x="48"  y="218" font-size="11" fill="#333">2</text>
-  <text x="90"  y="218" font-size="11" fill="#333">Dr. Dana Rivera</text>
-  <text x="240" y="218" font-size="11" fill="#333">2026-03-20 10:00</text>
-  <text x="390" y="218" font-size="11" fill="#333">10:30</text>
-  <rect x="530" y="201" width="46" height="20" fill="#e6f4ea" rx="10"/>
-  <text x="541" y="215" font-size="10" fill="#2e7d32" font-weight="bold">Open</text>
-  <rect x="650" y="201" width="60" height="22" fill="#1a3a5c" rx="4"/>
-  <text x="669" y="216" font-size="11" fill="white">Book</text>
+  <line x1="20" y1="168" x2="680" y2="168" stroke="black" stroke-width="1"/>
+  <text x="28"  y="185" font-size="13" fill="black">2</text>
+  <text x="158" y="185" font-size="13" fill="black">Dr. Dana Rivera</text>
+  <text x="328" y="185" font-size="13" fill="black">2026-03-20 10:00</text>
+  <text x="468" y="185" font-size="13" fill="black">10:30</text>
+  <text x="578" y="185" font-size="13" fill="blue" text-decoration="underline">Book</text>
 
   <!-- Row 3 -->
-  <rect x="30" y="232" width="740" height="38" fill="white"/>
-  <text x="48"  y="256" font-size="11" fill="#333">3</text>
-  <text x="90"  y="256" font-size="11" fill="#333">Dr. Eric Chen</text>
-  <text x="240" y="256" font-size="11" fill="#333">2026-03-22 11:00</text>
-  <text x="390" y="256" font-size="11" fill="#333">11:30</text>
-  <rect x="530" y="239" width="46" height="20" fill="#e6f4ea" rx="10"/>
-  <text x="541" y="253" font-size="10" fill="#2e7d32" font-weight="bold">Open</text>
-  <rect x="650" y="239" width="60" height="22" fill="#1a3a5c" rx="4"/>
-  <text x="669" y="254" font-size="11" fill="white">Book</text>
+  <line x1="20" y1="196" x2="680" y2="196" stroke="black" stroke-width="1"/>
+  <text x="28"  y="213" font-size="13" fill="black">3</text>
+  <text x="158" y="213" font-size="13" fill="black">Dr. Eric Chen</text>
+  <text x="328" y="213" font-size="13" fill="black">2026-03-22 11:00</text>
+  <text x="468" y="213" font-size="13" fill="black">11:30</text>
+  <text x="578" y="213" font-size="13" fill="blue" text-decoration="underline">Book</text>
 
-  <!-- Row 4 (faded) -->
-  <rect x="30" y="270" width="740" height="38" fill="#f5f7fa"/>
-  <text x="48"  y="294" font-size="11" fill="#bbb">4</text>
-  <text x="90"  y="294" font-size="11" fill="#bbb">Dr. Eric Chen</text>
-  <text x="240" y="294" font-size="11" fill="#bbb">2026-03-23 14:00</text>
-  <text x="390" y="294" font-size="11" fill="#bbb">14:30</text>
-  <rect x="530" y="277" width="46" height="20" fill="#e6f4ea" rx="10"/>
-  <text x="541" y="291" font-size="10" fill="#2e7d32" font-weight="bold">Open</text>
-  <rect x="650" y="277" width="60" height="22" fill="#1a3a5c" rx="4"/>
-  <text x="669" y="292" font-size="11" fill="white">Book</text>
+  <!-- Row 4 -->
+  <line x1="20" y1="224" x2="680" y2="224" stroke="black" stroke-width="1"/>
+  <text x="28"  y="241" font-size="13" fill="black">4</text>
+  <text x="158" y="241" font-size="13" fill="black">Dr. Eric Chen</text>
+  <text x="328" y="241" font-size="13" fill="black">2026-03-23 14:00</text>
+  <text x="468" y="241" font-size="13" fill="black">14:30</text>
+  <text x="578" y="241" font-size="13" fill="blue" text-decoration="underline">Book</text>
 
-  <!-- Dots to indicate more rows -->
-  <text x="400" y="328" font-size="16" fill="#ccc" text-anchor="middle">· · ·</text>
-
-  <!-- Footer -->
-  <rect x="0" y="490" width="800" height="30" fill="#d0d8e4"/>
-  <text x="400" y="510" font-size="10" fill="#888" text-anchor="middle">© 2026 SJSU Academic Advising Scheduling System — CMPE 172 Term Project</text>
-
-  <text x="400" y="476" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: View Available Slots (GET /slots)</text>
+  <!-- Label -->
+  <text x="350" y="385" font-size="11" fill="#aaa" text-anchor="middle" font-style="italic">Wireframe: Available Slots (GET /slots)</text>
 </svg>
