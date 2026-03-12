@@ -14,11 +14,11 @@ public class TimeSlotRepository {
     private final List<TimeSlot> slots = new ArrayList<>();
 
     public TimeSlotRepository() {
-        slots.add(new TimeSlot(1L, "Dr. Dana Rivera", "2026-03-20 09:00", "2026-03-20 09:30"));
-        slots.add(new TimeSlot(2L, "Dr. Dana Rivera", "2026-03-20 10:00", "2026-03-20 10:30"));
-        slots.add(new TimeSlot(3L, "Dr. Dana Rivera", "2026-03-21 13:00", "2026-03-21 13:30"));
-        slots.add(new TimeSlot(4L, "Dr. Eric Chen",   "2026-03-22 11:00", "2026-03-22 11:30"));
-        slots.add(new TimeSlot(5L, "Dr. Eric Chen",   "2026-03-23 14:00", "2026-03-23 14:30"));
+        slots.add(new TimeSlot(1L, "Bryanna Ortiz", "2026-03-20 09:00", "2026-03-20 09:30"));
+        slots.add(new TimeSlot(2L, "Bryanna Ortiz", "2026-03-20 10:00", "2026-03-20 10:30"));
+        slots.add(new TimeSlot(3L, "Bryanna Ortiz", "2026-03-21 13:00", "2026-03-21 13:30"));
+        slots.add(new TimeSlot(4L, "Monica Serna",  "2026-03-22 11:00", "2026-03-22 11:30"));
+        slots.add(new TimeSlot(5L, "Monica Serna",  "2026-03-23 14:00", "2026-03-23 14:30"));
     }
 
     public List<TimeSlot> findOpenSlots() {
