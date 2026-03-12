@@ -20,7 +20,7 @@
   <text x="20" y="98" font-size="18" font-weight="bold" fill="black">Book Appointment</text>
 
   <!-- Slot info paragraphs -->
-  <text x="20" y="124" font-size="14" fill="black"><tspan font-weight="bold">Advisor:</tspan> Dr. Dana Rivera</text>
+  <text x="20" y="124" font-size="14" fill="black"><tspan font-weight="bold">Advisor:</tspan> Bryanna Ortiz</text>
   <text x="20" y="146" font-size="14" fill="black"><tspan font-weight="bold">Time:</tspan> 2026-03-20 09:00 - 2026-03-20 09:30</text>
 
   <!-- Form: label -->
