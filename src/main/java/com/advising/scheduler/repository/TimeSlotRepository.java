@@ -29,7 +29,13 @@ public class TimeSlotRepository {
         return slots.stream().filter(s -> s.getSlotId().equals(id)).findFirst();
     }
 
-    public void markSlotBooked(Long id) {
-        findById(id).ifPresent(s -> s.setOpen(false));
+    public boolean markBooked(Long id, int expected) {
+        Optional<TimeSlot> found = findById(id);
+        if (found.isEmpty()) return false;
+        TimeSlot ts = found.get();
+        if (ts.getVersion() != expected) return false;
+        ts.setOpen(false);
+        ts.setVersion(expected + 1);
+        return true;
     }
 }

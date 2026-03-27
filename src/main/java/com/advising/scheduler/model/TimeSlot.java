@@ -6,6 +6,7 @@ public class TimeSlot {
     private String startTime;
     private String endTime;
     private boolean open;
+    private int version = 0;
 
     public TimeSlot() {}
 
@@ -31,4 +32,7 @@ public class TimeSlot {
 
     public boolean isOpen() { return open; }
     public void setOpen(boolean open) { this.open = open; }
+
+    public int getVersion() { return version; }
+    public void setVersion(int version) { this.version = version; }
 }
