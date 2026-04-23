@@ -1,0 +1,131 @@
+CMPE 172-02 M4 Design Notes
+Academic Advising Appointment Scheduling System — Concurrency + Transaction Design
+Akif Farook | Prof. Daphne Chen | March 27, 2026
+
+------------------------------------------------------------
+1. Race Condition Scenario
+------------------------------------------------------------
+
+Two students (User A and User B) book Slot #1 (Bryanna Ortiz, 2026-03-20 09:00) simultaneously.
+
+  T1  User A reads Slot 1: open=true → passes check
+  T2  User B reads Slot 1: open=true → passes check (A hasn't written yet)
+  T3  User A sets open=false, saves Appointment #1 → success
+  T4  User B sets open=false, saves Appointment #2 → success (double booking)
+
+Both threads read open=true before either writes, causing a double booking.
+
+------------------------------------------------------------
+2. ACID Properties
+------------------------------------------------------------
+
+Atomicity:    Marking the slot AND saving the appointment must both succeed or both
+              roll back. @Transactional handles this.
+
+Consistency:  One slot = at most one appointment. The version check ensures only one
+              transaction can book the same slot.
+
+Isolation:    Concurrent bookings for the same slot don't interfere with each other.
+              Without this, a double booking can slip through as shown above.
+
+Durability:   A confirmed booking survives after commit. With a real DB it survives
+              restarts; in the current in-memory setup it lasts for the app lifetime.
+
+------------------------------------------------------------
+3. Concurrency Control — Optimistic Locking
+------------------------------------------------------------
+
+Two students hitting the same slot at the same time is rare, so pessimistic locking
+(which blocks every request) would be overkill. Optimistic locking lets transactions
+run freely and only checks for conflicts at write time.
+
+How it works:
+  - Each TimeSlot has an integer version (starts at 0).
+  - When booking, the service reads the slot and saves its current version.
+  - markBooked(id, expected) only writes if the version hasn't changed.
+    If another thread already booked it, the version will be different → returns false.
+  - On success, the version increments so any other in-flight readers are invalidated.
+
+------------------------------------------------------------
+4. Isolation Level — REPEATABLE READ
+------------------------------------------------------------
+
+The booking reads a slot's open status and version, then writes based on those values.
+Those reads need to stay stable for the whole transaction.
+
+- REPEATABLE READ: once a row is read, its value won't change within that transaction.
+  The version check alone decides who wins the slot. This is what we use.
+- READ COMMITTED: would allow another transaction to update the slot between our read
+  and write, breaking the version check.
+- SERIALIZABLE: unnecessary here since we always target one specific slot by ID,
+  not a range of rows.
+
+------------------------------------------------------------
+5. Transaction Design
+------------------------------------------------------------
+
+@Transactional on bookAppointment() sets the transaction boundary — it opens when the
+method is called and commits on return. Any exception triggers a full rollback.
+
+Steps inside the method:
+  1. Read the slot and check it's still open.
+  2. Call markBooked() — checks the version and sets open=false.
+  3. If markBooked returns false (version mismatch), return early. Nothing is written.
+  4. If it succeeds, save the Appointment. Both writes commit together.
+
+On a conflict, the controller gets false, shows a flash error, and redirects to /slots
+so the user can pick another time — a simple retry flow for a human-facing app.
+
+------------------------------------------------------------
+APPENDIX — Java Snippets
+------------------------------------------------------------
+
+--- TimeSlot.java ---
+
+    private int version = 0;
+
+    public int getVersion() { return version; }
+    public void setVersion(int version) { this.version = version; }
+
+// Tracks the slot's version so any booking attempt can check it hasn't changed 
+since it was read.
+
+
+--- TimeSlotRepository.java ---
+
+    public boolean markBooked(Long id, int expected) {
+        Optional<TimeSlot> found = findById(id);
+        if (found.isEmpty()) return false;
+        TimeSlot ts = found.get();
+        if (ts.getVersion() != expected) return false;  // conflict
+        ts.setOpen(false);
+        ts.setVersion(expected + 1);
+        return true;
+    }
+
+// Performs the version check and slot update atomically — if the version has moved on, the booking is rejected before any write happens.
+
+
+--- AppointmentService.java ---
+
+    @Transactional
+    public boolean bookAppointment(Long slotId, String studentName) {
+        Optional<TimeSlot> found = slotRepo.findById(slotId);
+        if (found.isEmpty() || !found.get().isOpen()) return false;
+        TimeSlot ts = found.get();
+        if (!slotRepo.markBooked(slotId, ts.getVersion())) return false;
+
+        Appointment app = new Appointment();
+        app.setSlotId(slotId);
+        app.setStudentName(studentName);
+        app.setAdvisorName(ts.getAdvisorName());
+        app.setStartTime(ts.getStartTime());
+        app.setEndTime(ts.getEndTime());
+        app.setStatus("SCHEDULED");
+        app.setCreateTime(LocalDateTime.now().toString());
+        apptRepo.save(app);
+        return true;
+    }
+
+// @Transactional ensures the version check and appointment save either both commit or both roll back — no partial writes.
+
