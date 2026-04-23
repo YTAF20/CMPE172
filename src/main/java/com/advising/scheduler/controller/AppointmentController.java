@@ -27,13 +27,13 @@ public class AppointmentController {
                                    @RequestParam String studentName,
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
-        String notificationStatus = appointmentService.bookAppointment(slotId, studentName);
-        if (notificationStatus == null) {
+        String notifStatus = appointmentService.bookAppointment(slotId, studentName);
+        if (notifStatus == null) {
             redirectAttributes.addFlashAttribute("error", "This slot is no longer available. Please choose another.");
             return "redirect:/slots";
         }
         model.addAttribute("message", "Your appointment has been successfully booked!");
-        model.addAttribute("notificationStatus", notificationStatus);
+        model.addAttribute("notifStatus", notifStatus);
         return "confirmation";
     }
 }

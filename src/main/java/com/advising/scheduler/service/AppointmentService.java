@@ -17,21 +17,16 @@ public class AppointmentService {
 
     private final AppointmentRepository apptRepo;
     private final TimeSlotRepository slotRepo;
-    private final NotificationClient notificationClient;
+    private final NotificationClient notifClient;
 
     public AppointmentService(AppointmentRepository apptRepo,
                                TimeSlotRepository slotRepo,
-                               NotificationClient notificationClient) {
+                               NotificationClient notifClient) {
         this.apptRepo = apptRepo;
         this.slotRepo = slotRepo;
-        this.notificationClient = notificationClient;
+        this.notifClient = notifClient;
     }
 
-    /**
-     * Books an appointment and sends a confirmation via the external Notification Service.
-     *
-     * @return notification status message, or null if the slot was unavailable
-     */
     @Transactional
     public String bookAppointment(Long slotId, String studentName) {
         Optional<TimeSlot> found = slotRepo.findById(slotId);
@@ -49,15 +44,11 @@ public class AppointmentService {
         app.setCreateTime(LocalDateTime.now().toString());
         apptRepo.save(app);
 
-        // Delegate notification to the external Notification Service
         NotificationRequest notif = new NotificationRequest(
-                studentName,
-                ts.getAdvisorName(),
-                ts.getStartTime(),
-                ts.getEndTime(),
-                app.getAppId()
+                studentName, ts.getAdvisorName(),
+                ts.getStartTime(), ts.getEndTime(), app.getAppId()
         );
-        return notificationClient.sendConfirmation(notif);
+        return notifClient.send(notif);
     }
 
     public List<Appointment> getAllAppointments() {
