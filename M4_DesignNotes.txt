@@ -103,7 +103,8 @@ since it was read.
         return true;
     }
 
-// Performs the version check and slot update atomically — if the version has moved on, the booking is rejected before any write happens.
+// Performs the version check and slot update atomically — if the version has moved on, the booking 
+is rejected before any write happens.
 
 
 --- AppointmentService.java ---
@@ -127,5 +128,6 @@ since it was read.
         return true;
     }
 
-// @Transactional ensures the version check and appointment save either both commit or both roll back — no partial writes.
+// @Transactional ensures the version check and appointment save either both commit or both roll 
+back — no partial writes.
 
