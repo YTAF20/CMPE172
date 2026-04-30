@@ -30,7 +30,7 @@ public class NotificationController {
         System.out.printf("[NotificationService] Sending confirmation to %s for appointment #%d " +
                 "with %s at %s%n",
                 request.getStudentName(),
-                request.getAppointmentId(),
+                request.getApptId(),
                 request.getAdvisorName(),
                 request.getStartTime());
 

@@ -1,0 +1,206 @@
+CMPE 172-02 M6 Design Notes
+Academic Advising Appointment Scheduling System — System Management + Logging Plan
+Akif Farook | Prof. Daphne Chen | April 29, 2026
+
+------------------------------------------------------------
+1. Logging Plan
+------------------------------------------------------------
+
+The application uses SLF4J with Spring Boot's default Logback backend.
+All logging is in AppointmentService, the one class where booking state changes.
+
+Log level configuration (application.properties):
+  logging.level.com.advising=INFO
+
+What is logged and why:
+
+  INFO  — Booking attempt received
+          Logged at the start of bookAppointment() before any state is read.
+          Captures who is trying to book and which slot they targeted.
+
+          Example:
+          14:03:22 INFO  [c.a.s.service.AppointmentService] -
+            Booking attempt: student=Alice Nguyen slotId=2
+
+  WARN  — Booking rejected (slot unavailable or version conflict)
+          Logged when the booking fails because the slot is gone or was
+          concurrently claimed. No exception is thrown; a WARN is appropriate
+          because this is an expected edge case, not a system error.
+
+          Example (slot already booked):
+          14:03:22 WARN  [c.a.s.service.AppointmentService] -
+            Booking failed: slot 2 not found or already booked
+
+          Example (optimistic lock conflict):
+          14:03:22 WARN  [c.a.s.service.AppointmentService] -
+            Booking failed: version conflict on slot 2 (concurrent booking detected)
+
+  ERROR — Notification delivery failure
+          Logged if the call to the notification service throws an exception.
+          The appointment is still saved (the booking itself succeeded), but the
+          student will see NOTIFICATION_ERROR in the confirmation page.
+
+          Example:
+          14:03:23 ERROR [c.a.s.service.AppointmentService] -
+            Notification failed for appointment 4: Connection refused
+
+  INFO  — Booking confirmed
+          Logged after a successful save, includes the latency for that operation.
+
+          Example:
+          14:03:23 INFO  [c.a.s.service.AppointmentService] -
+            Booking confirmed: appointmentId=4 student=Alice Nguyen
+            advisor=Bryanna Ortiz latencyMs=12
+
+------------------------------------------------------------
+2. Monitoring Metrics
+------------------------------------------------------------
+
+Metrics are tracked in-memory using AtomicLong counters inside AppointmentService
+and exposed via the GET /health endpoint.
+
+Metric 1 — Successful bookings total
+  Counter: successfulBookings
+  Interpretation: cumulative count of appointments saved since startup.
+
+Metric 2 — Failed bookings total
+  Counter: failedBookings
+  Interpretation: cumulative count of rejected attempts (slot gone or lock
+  conflict). A sudden spike indicates high contention or a bug.
+
+Metric 3 — Average booking latency (ms)
+  Computed: totalLatencyMs / successfulBookings
+  Interpretation: end-to-end time for a complete successful booking, including
+  the version check, appointment save, and notification call.
+
+GET /health sample response:
+
+  {
+    "status": "UP",
+    "bookings_total": 3,
+    "bookings_failed": 1,
+    "bookings_attempted": 4,
+    "slots_available": 4,
+    "avg_booking_latency_ms": 18.33
+  }
+
+------------------------------------------------------------
+3. Failure Scenario + Recovery Strategy
+------------------------------------------------------------
+
+Scenario: Notification Service is down
+
+  1. A student submits a booking form.
+  2. AppointmentService marks the slot as booked and saves the Appointment record
+     — both writes commit successfully via @Transactional.
+  3. The call to NotificationClient.send() throws a connection exception because
+     the notification service is unreachable.
+  4. Without handling this, the exception would propagate up, roll back the
+     transaction, and the student would lose their slot even though the error was
+     outside the booking logic.
+
+Recovery strategy:
+
+  The try/catch around notifClient.send() in AppointmentService catches the
+  exception without re-throwing it. The booking is preserved. The return value
+  is set to "NOTIFICATION_ERROR" so the controller can display a user-facing
+  message: "Appointment booked — confirmation email may be delayed."
+
+  An ERROR log entry records the failed notification with the appointment ID,
+  so an operator can replay the notification manually or via a retry job if
+  needed. The appointment ID is known, so no data is lost.
+
+  If the notification service recovers, the user can refresh /appointments to
+  confirm their booking is in the system.
+
+------------------------------------------------------------
+4. Health Check Endpoint
+------------------------------------------------------------
+
+Endpoint:   GET /health
+Controller: HealthController.java
+Returns:    JSON (200 OK)
+
+Fields returned:
+  status               — always "UP" while the process is running
+  bookings_total       — count of completed bookings this session
+  bookings_failed      — count of rejected booking attempts this session
+  bookings_attempted   — total booking calls received
+  slots_available      — number of time slots still open
+  avg_booking_latency_ms — rolling average latency of successful bookings
+
+This endpoint is designed to be polled by an external monitor (e.g., UptimeRobot,
+a load balancer health probe). A non-200 response or status != "UP" would signal
+the instance is unhealthy. slots_available dropping to 0 flags that all slots
+are filled and students will be turned away.
+
+------------------------------------------------------------
+APPENDIX — Code Snippets
+------------------------------------------------------------
+
+--- AppointmentService.java (logging + metrics) ---
+
+  private static final Logger log = LoggerFactory.getLogger(AppointmentService.class);
+
+  private final AtomicLong totalAttempts      = new AtomicLong(0);
+  private final AtomicLong successfulBookings = new AtomicLong(0);
+  private final AtomicLong failedBookings     = new AtomicLong(0);
+  private final AtomicLong totalLatencyMs     = new AtomicLong(0);
+
+  @Transactional
+  public String bookAppointment(Long slotId, String studentName) {
+      long start = System.currentTimeMillis();
+      totalAttempts.incrementAndGet();
+      log.info("Booking attempt: student={} slotId={}", studentName, slotId);
+
+      Optional<TimeSlot> found = slotRepo.findById(slotId);
+      if (found.isEmpty() || !found.get().isOpen()) {
+          failedBookings.incrementAndGet();
+          log.warn("Booking failed: slot {} not found or already booked", slotId);
+          return null;
+      }
+      TimeSlot ts = found.get();
+      if (!slotRepo.markBooked(slotId, ts.getVersion())) {
+          failedBookings.incrementAndGet();
+          log.warn("Booking failed: version conflict on slot {} (concurrent booking detected)", slotId);
+          return null;
+      }
+      // ... save appointment ...
+      try {
+          notifResult = notifClient.send(notif);
+      } catch (Exception e) {
+          log.error("Notification failed for appointment {}: {}", app.getAppId(), e.getMessage());
+          notifResult = "NOTIFICATION_ERROR";
+      }
+      successfulBookings.incrementAndGet();
+      long elapsed = System.currentTimeMillis() - start;
+      totalLatencyMs.addAndGet(elapsed);
+      log.info("Booking confirmed: appointmentId={} student={} advisor={} latencyMs={}",
+              app.getAppId(), studentName, ts.getAdvisorName(), elapsed);
+      return notifResult;
+  }
+
+
+--- HealthController.java ---
+
+  @RestController
+  public class HealthController {
+
+      @GetMapping("/health")
+      public Map<String, Object> health() {
+          Map<String, Object> response = new LinkedHashMap<>();
+          response.put("status", "UP");
+          response.put("bookings_total",            appointmentService.getSuccessfulBookings());
+          response.put("bookings_failed",           appointmentService.getFailedBookings());
+          response.put("bookings_attempted",        appointmentService.getTotalAttempts());
+          response.put("slots_available",           timeSlotService.getOpenSlots().size());
+          response.put("avg_booking_latency_ms",    appointmentService.getAverageLatencyMs());
+          return response;
+      }
+  }
+
+
+--- application.properties ---
+
+  logging.level.com.advising=INFO
+  logging.pattern.console=%d{HH:mm:ss} %-5level [%logger{20}] - %msg%n
