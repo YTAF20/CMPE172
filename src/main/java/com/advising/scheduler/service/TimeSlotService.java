@@ -10,17 +10,17 @@ import java.util.Optional;
 @Service
 public class TimeSlotService {
 
-    private final TimeSlotRepository timeSlotRepository;
+    private final TimeSlotRepository repo;
 
-    public TimeSlotService(TimeSlotRepository timeSlotRepository) {
-        this.timeSlotRepository = timeSlotRepository;
+    public TimeSlotService(TimeSlotRepository repo) {
+        this.repo = repo;
     }
 
     public List<TimeSlot> getOpenSlots() {
-        return timeSlotRepository.findOpenSlots();
+        return repo.findOpenSlots();
     }
 
     public Optional<TimeSlot> getSlotById(Long slotId) {
-        return timeSlotRepository.findById(slotId);
+        return repo.findById(slotId);
     }
 }

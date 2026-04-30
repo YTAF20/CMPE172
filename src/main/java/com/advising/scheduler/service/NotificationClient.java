@@ -9,17 +9,17 @@ import java.util.Map;
 @Service
 public class NotificationClient {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate http;
     private static final String URL = "http://localhost:8080/notification-service/send";
 
-    public NotificationClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public NotificationClient(RestTemplate http) {
+        this.http = http;
     }
 
     @SuppressWarnings("unchecked")
     public String send(NotificationRequest req) {
         try {
-            Map<String, String> resp = restTemplate.postForObject(URL, req, Map.class);
+            Map<String, String> resp = http.postForObject(URL, req, Map.class);
             if (resp != null && "sent".equals(resp.get("status"))) {
                 return resp.get("message");
             }

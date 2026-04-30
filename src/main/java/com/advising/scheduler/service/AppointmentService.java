@@ -24,10 +24,9 @@ public class AppointmentService {
     private final TimeSlotRepository slotRepo;
     private final NotificationClient notifClient;
 
-    private final AtomicLong totalAttempts = new AtomicLong(0);
-    private final AtomicLong successfulBookings = new AtomicLong(0);
-    private final AtomicLong failedBookings = new AtomicLong(0);
-    private final AtomicLong totalLatencyMs = new AtomicLong(0);
+    private final AtomicLong attempts  = new AtomicLong(0);
+    private final AtomicLong successes = new AtomicLong(0);
+    private final AtomicLong failures  = new AtomicLong(0);
 
     public AppointmentService(AppointmentRepository apptRepo,
                                TimeSlotRepository slotRepo,
@@ -39,20 +38,19 @@ public class AppointmentService {
 
     @Transactional
     public String bookAppointment(Long slotId, String studentName) {
-        long start = System.currentTimeMillis();
-        totalAttempts.incrementAndGet();
+        attempts.incrementAndGet();
         log.info("Booking attempt: student={} slotId={}", studentName, slotId);
 
         Optional<TimeSlot> found = slotRepo.findById(slotId);
         if (found.isEmpty() || !found.get().isOpen()) {
-            failedBookings.incrementAndGet();
+            failures.incrementAndGet();
             log.warn("Booking failed: slot {} not found or already booked", slotId);
             return null;
         }
 
         TimeSlot ts = found.get();
         if (!slotRepo.markBooked(slotId, ts.getVersion())) {
-            failedBookings.incrementAndGet();
+            failures.incrementAndGet();
             log.warn("Booking failed: version conflict on slot {} (concurrent booking detected)", slotId);
             return null;
         }
@@ -72,33 +70,26 @@ public class AppointmentService {
                 ts.getStartTime(), ts.getEndTime(), app.getAppId()
         );
 
-        String notifResult;
+        String result;
         try {
-            notifResult = notifClient.send(notif);
+            result = notifClient.send(notif);
         } catch (Exception e) {
             log.error("Notification failed for appointment {}: {}", app.getAppId(), e.getMessage());
-            notifResult = "NOTIFICATION_ERROR";
+            result = "NOTIFICATION_ERROR";
         }
 
-        successfulBookings.incrementAndGet();
-        long elapsed = System.currentTimeMillis() - start;
-        totalLatencyMs.addAndGet(elapsed);
-        log.info("Booking confirmed: appointmentId={} student={} advisor={} latencyMs={}",
-                app.getAppId(), studentName, ts.getAdvisorName(), elapsed);
+        successes.incrementAndGet();
+        log.info("Booking confirmed: appointmentId={} student={} advisor={}",
+                app.getAppId(), studentName, ts.getAdvisorName());
 
-        return notifResult;
+        return result;
     }
 
     public List<Appointment> getAllAppointments() {
         return apptRepo.findAll();
     }
 
-    public long getTotalAttempts()      { return totalAttempts.get(); }
-    public long getSuccessfulBookings() { return successfulBookings.get(); }
-    public long getFailedBookings()     { return failedBookings.get(); }
-
-    public double getAverageLatencyMs() {
-        long successes = successfulBookings.get();
-        return successes == 0 ? 0.0 : (double) totalLatencyMs.get() / successes;
-    }
+    public long getAttempts()  { return attempts.get(); }
+    public long getSuccesses() { return successes.get(); }
+    public long getFailures()  { return failures.get(); }
 }

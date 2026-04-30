@@ -10,15 +10,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-    private final AppointmentService appointmentService;
+    private final AppointmentService service;
 
-    public AppointmentController(AppointmentService appointmentService) {
-        this.appointmentService = appointmentService;
+    public AppointmentController(AppointmentService service) {
+        this.service = service;
     }
 
     @GetMapping
     public String viewAppointments(Model model) {
-        model.addAttribute("appointments", appointmentService.getAllAppointments());
+        model.addAttribute("appointments", service.getAllAppointments());
         return "appointments";
     }
 
@@ -26,14 +26,14 @@ public class AppointmentController {
     public String bookAppointment(@RequestParam Long slotId,
                                    @RequestParam String studentName,
                                    Model model,
-                                   RedirectAttributes redirectAttributes) {
-        String notifStatus = appointmentService.bookAppointment(slotId, studentName);
-        if (notifStatus == null) {
-            redirectAttributes.addFlashAttribute("error", "This slot is no longer available. Please choose another.");
+                                   RedirectAttributes redirect) {
+        String result = service.bookAppointment(slotId, studentName);
+        if (result == null) {
+            redirect.addFlashAttribute("error", "This slot is no longer available. Please choose another.");
             return "redirect:/slots";
         }
         model.addAttribute("message", "Your appointment has been successfully booked!");
-        model.addAttribute("notifStatus", notifStatus);
+        model.addAttribute("notifStatus", result);
         return "confirmation";
     }
 }
