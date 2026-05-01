@@ -90,12 +90,16 @@ APPENDIX — Code Snippets
 ------------------------------------------------------------
 
 --- AppointmentService.java ---
+// Declares the logger and three counters that track every booking attempt, success, and failure.
 
   private static final Logger log = LoggerFactory.getLogger(AppointmentService.class);
 
   private final AtomicLong totalAttempts      = new AtomicLong(0);
   private final AtomicLong successfulBookings = new AtomicLong(0);
   private final AtomicLong failedBookings     = new AtomicLong(0);
+
+// bookAppointment() emits an INFO on entry, a WARN on each failure path, an ERROR if the
+// notification call throws, and a final INFO on success — counters increment at each branch.
 
   @Transactional
   public String bookAppointment(Long slotId, String studentName) {
@@ -129,6 +133,7 @@ APPENDIX — Code Snippets
 
 
 --- HealthController.java ---
+// GET /health reads the live counters and open-slot count, returning them as a single JSON object.
 
   @GetMapping("/health")
   public Map<String, Object> health() {
@@ -143,6 +148,7 @@ APPENDIX — Code Snippets
 
 
 --- application.properties ---
+// Sets INFO as the minimum log level for all app classes and formats each line with timestamp, level, logger, and message.
 
   logging.level.com.advising=INFO
   logging.pattern.console=%d{HH:mm:ss} %-5level [%logger{20}] - %msg%n
