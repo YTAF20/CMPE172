@@ -20,7 +20,24 @@ public class TimeSlotService {
         return repo.findOpenSlots();
     }
 
+    public List<TimeSlot> getAllSlots() {
+        return repo.findAll();
+    }
+
     public Optional<TimeSlot> getSlotById(Long slotId) {
         return repo.findById(slotId);
+    }
+
+    public void addSlot(String advisorName, String startTime, String endTime) {
+        TimeSlot ts = new TimeSlot();
+        ts.setAdvisorName(advisorName);
+        ts.setStartTime(startTime);
+        ts.setEndTime(endTime);
+        ts.setOpen(true);
+        repo.save(ts);
+    }
+
+    public boolean deleteSlot(Long id) {
+        return repo.delete(id);
     }
 }

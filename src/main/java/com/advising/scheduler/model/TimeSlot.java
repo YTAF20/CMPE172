@@ -10,14 +10,6 @@ public class TimeSlot {
 
     public TimeSlot() {}
 
-    public TimeSlot(Long slotId, String advisorName, String startTime, String endTime) {
-        this.slotId = slotId;
-        this.advisorName = advisorName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.open = true;
-    }
-
     public Long getSlotId() { return slotId; }
     public void setSlotId(Long slotId) { this.slotId = slotId; }
 

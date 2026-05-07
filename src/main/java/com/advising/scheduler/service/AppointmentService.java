@@ -1,7 +1,7 @@
 package com.advising.scheduler.service;
 
 import com.advising.scheduler.model.Appointment;
-import com.advising.scheduler.model.NotificationRequest;
+import com.advising.scheduler.model.NotifRequest;
 import com.advising.scheduler.model.TimeSlot;
 import com.advising.scheduler.repository.AppointmentRepository;
 import com.advising.scheduler.repository.TimeSlotRepository;
@@ -18,46 +18,46 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class AppointmentService {
 
-    private static final Logger log = LoggerFactory.getLogger(AppointmentService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
 
     private final AppointmentRepository apptRepo;
     private final TimeSlotRepository slotRepo;
-    private final NotificationClient notifClient;
+    private final NotifClient notifClient;
 
-    private final AtomicLong attempts  = new AtomicLong(0);
+    private final AtomicLong attempts = new AtomicLong(0);
     private final AtomicLong successes = new AtomicLong(0);
-    private final AtomicLong failures  = new AtomicLong(0);
+    private final AtomicLong failures = new AtomicLong(0);
 
     public AppointmentService(AppointmentRepository apptRepo,
                                TimeSlotRepository slotRepo,
-                               NotificationClient notifClient) {
+                               NotifClient notifClient) {
         this.apptRepo = apptRepo;
         this.slotRepo = slotRepo;
         this.notifClient = notifClient;
     }
 
     @Transactional
-    public String bookAppointment(Long slotId, String studentName) {
+    public String bookAppointment(Long slotId, String student) {
         attempts.incrementAndGet();
-        log.info("Booking attempt: student={} slotId={}", studentName, slotId);
+        logger.info("Booking attempt for student {} on slot {}", student, slotId);
 
         Optional<TimeSlot> found = slotRepo.findById(slotId);
         if (found.isEmpty() || !found.get().isOpen()) {
             failures.incrementAndGet();
-            log.warn("Booking failed: slot {} not found or already booked", slotId);
+            logger.warn("Slot {} not found or already booked", slotId);
             return null;
         }
 
         TimeSlot ts = found.get();
         if (!slotRepo.markBooked(slotId, ts.getVersion())) {
             failures.incrementAndGet();
-            log.warn("Booking failed: version conflict on slot {} (concurrent booking detected)", slotId);
+            logger.warn("Version conflict on slot {}, someone else booked it", slotId);
             return null;
         }
 
         Appointment app = new Appointment();
         app.setSlotId(slotId);
-        app.setStudentName(studentName);
+        app.setStudentName(student);
         app.setAdvisorName(ts.getAdvisorName());
         app.setStartTime(ts.getStartTime());
         app.setEndTime(ts.getEndTime());
@@ -65,8 +65,8 @@ public class AppointmentService {
         app.setCreateTime(LocalDateTime.now().toString());
         apptRepo.save(app);
 
-        NotificationRequest notif = new NotificationRequest(
-                studentName, ts.getAdvisorName(),
+        NotifRequest notif = new NotifRequest(
+                student, ts.getAdvisorName(),
                 ts.getStartTime(), ts.getEndTime(), app.getAppId()
         );
 
@@ -74,22 +74,35 @@ public class AppointmentService {
         try {
             result = notifClient.send(notif);
         } catch (Exception e) {
-            log.error("Notification failed for appointment {}: {}", app.getAppId(), e.getMessage());
+            logger.error("Notification failed: {}", e.getMessage());
             result = "NOTIFICATION_ERROR";
         }
 
         successes.incrementAndGet();
-        log.info("Booking confirmed: appointmentId={} student={} advisor={}",
-                app.getAppId(), studentName, ts.getAdvisorName());
+        logger.info("Appointment {} booked for {}", app.getAppId(), student);
 
         return result;
+    }
+
+    @Transactional
+    public boolean cancelAppointment(Long appId) {
+        Optional<Appointment> found = apptRepo.findById(appId);
+        if (found.isEmpty() || "CANCELLED".equals(found.get().getStatus())) {
+            logger.warn("Appointment {} not found or already cancelled", appId);
+            return false;
+        }
+        Appointment app = found.get();
+        apptRepo.updateStatus(appId, "CANCELLED");
+        slotRepo.markOpen(app.getSlotId());
+        logger.info("Cancelled appointment {} for student {}", appId, app.getStudentName());
+        return true;
     }
 
     public List<Appointment> getAllAppointments() {
         return apptRepo.findAll();
     }
 
-    public long getAttempts()  { return attempts.get(); }
+    public long getAttempts() { return attempts.get(); }
     public long getSuccesses() { return successes.get(); }
-    public long getFailures()  { return failures.get(); }
+    public long getFailures() { return failures.get(); }
 }

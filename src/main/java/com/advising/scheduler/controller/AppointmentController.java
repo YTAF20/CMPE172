@@ -36,4 +36,14 @@ public class AppointmentController {
         model.addAttribute("notifStatus", result);
         return "confirmation";
     }
+
+    @PostMapping("/{id}/cancel")
+    public String cancel(@PathVariable Long id, RedirectAttributes redirect) {
+        if (service.cancelAppointment(id)) {
+            redirect.addFlashAttribute("message", "Appointment cancelled. The slot is now available again.");
+        } else {
+            redirect.addFlashAttribute("error", "Could not cancel appointment. It may already be cancelled.");
+        }
+        return "redirect:/appointments";
+    }
 }

@@ -1,16 +1,16 @@
 package com.advising.scheduler.model;
 
-public class NotificationRequest {
+public class NotifRequest {
     private String studentName;
     private String advisorName;
     private String startTime;
     private String endTime;
     private Long apptId;
 
-    public NotificationRequest() {}
+    public NotifRequest() {}
 
-    public NotificationRequest(String studentName, String advisorName,
-                                String startTime, String endTime, Long apptId) {
+    public NotifRequest(String studentName, String advisorName,
+                        String startTime, String endTime, Long apptId) {
         this.studentName = studentName;
         this.advisorName = advisorName;
         this.startTime = startTime;

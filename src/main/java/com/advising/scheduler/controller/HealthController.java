@@ -11,22 +11,22 @@ import java.util.Map;
 @RestController
 public class HealthController {
 
-    private final AppointmentService apptService;
-    private final TimeSlotService slotService;
+    private final AppointmentService apptSvc;
+    private final TimeSlotService slotSvc;
 
-    public HealthController(AppointmentService apptService, TimeSlotService slotService) {
-        this.apptService = apptService;
-        this.slotService = slotService;
+    public HealthController(AppointmentService apptSvc, TimeSlotService slotSvc) {
+        this.apptSvc = apptSvc;
+        this.slotSvc = slotSvc;
     }
 
     @GetMapping("/health")
     public Map<String, Object> health() {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("status", "UP");
-        response.put("bookings_total",     apptService.getSuccesses());
-        response.put("bookings_failed",    apptService.getFailures());
-        response.put("bookings_attempted", apptService.getAttempts());
-        response.put("slots_available",    slotService.getOpenSlots().size());
+        response.put("bookings_total", apptSvc.getSuccesses());
+        response.put("bookings_failed", apptSvc.getFailures());
+        response.put("bookings_attempted", apptSvc.getAttempts());
+        response.put("slots_available", slotSvc.getOpenSlots().size());
         return response;
     }
 }

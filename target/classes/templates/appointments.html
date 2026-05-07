@@ -8,7 +8,8 @@
     <nav>
         <a th:href="@{/}">Home</a> |
         <a th:href="@{/slots}">Available Slots</a> |
-        <a th:href="@{/appointments}">Appointments</a>
+        <a th:href="@{/appointments}">Appointments</a> |
+        <a th:href="@{/admin/slots}">Manage Slots</a>
     </nav>
     <hr/>
 
@@ -31,6 +32,7 @@
                 <th>End Time</th>
                 <th>Status</th>
                 <th>Booked On</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -42,6 +44,15 @@
                 <td th:text="${app.endTime}"></td>
                 <td th:text="${app.status}"></td>
                 <td th:text="${app.createTime}"></td>
+                <td>
+                    <form th:if="${app.status == 'SCHEDULED'}"
+                          th:action="@{/appointments/{id}/cancel(id=${app.appId})}"
+                          method="post"
+                          onsubmit="return confirm('Cancel this appointment?')">
+                        <button type="submit">Cancel</button>
+                    </form>
+                    <span th:if="${app.status != 'SCHEDULED'}" style="color: grey;">N/A</span>
+                </td>
             </tr>
         </tbody>
     </table>

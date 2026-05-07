@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Slots</title>
+</head>
+<body>
+    <h1>Academic Advising Appointment Scheduler</h1>
+    <nav>
+        <a th:href="@{/}">Home</a> |
+        <a th:href="@{/slots}">Available Slots</a> |
+        <a th:href="@{/appointments}">Appointments</a> |
+        <a th:href="@{/admin/slots}">Manage Slots</a>
+    </nav>
+    <hr/>
+
+    <h2>Manage Advisor Availability</h2>
+
+    <p th:if="${message}" style="color: green;" th:text="${message}"></p>
+    <p th:if="${error}" style="color: red;" th:text="${error}"></p>
+
+    <h3>All Time Slots</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Advisor</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="slot : ${slots}">
+                <td th:text="${slot.slotId}"></td>
+                <td th:text="${slot.advisorName}"></td>
+                <td th:text="${slot.startTime}"></td>
+                <td th:text="${slot.endTime}"></td>
+                <td th:text="${slot.open ? 'Open' : 'Booked'}"></td>
+                <td>
+                    <form th:if="${slot.open}"
+                          th:action="@{/admin/slots/{id}/delete(id=${slot.slotId})}"
+                          method="post"
+                          onsubmit="return confirm('Delete this slot?')">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <span th:if="${!slot.open}" style="color: grey;">Booked</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Add New Slot</h3>
+    <form th:action="@{/admin/slots/add}" method="post">
+        <label>Advisor Name:<br/>
+            <input type="text" name="advisorName" placeholder="e.g. Bryanna Ortiz" required/>
+        </label><br/><br/>
+        <label>Start Time (YYYY-MM-DD HH:MM):<br/>
+            <input type="text" name="startTime" placeholder="e.g. 2026-05-10 09:00" required/>
+        </label><br/><br/>
+        <label>End Time (YYYY-MM-DD HH:MM):<br/>
+            <input type="text" name="endTime" placeholder="e.g. 2026-05-10 09:30" required/>
+        </label><br/><br/>
+        <button type="submit">Add Slot</button>
+    </form>
+</body>
+</html>

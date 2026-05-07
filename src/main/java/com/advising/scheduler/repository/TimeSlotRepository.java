@@ -1,41 +1,68 @@
 package com.advising.scheduler.repository;
 
 import com.advising.scheduler.model.TimeSlot;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class TimeSlotRepository {
 
-    private final List<TimeSlot> slots = new ArrayList<>();
+    private final JdbcTemplate db;
 
-    public TimeSlotRepository() {
-        slots.add(new TimeSlot(1L, "Bryanna Ortiz", "2026-03-20 09:00", "2026-03-20 09:30"));
-        slots.add(new TimeSlot(2L, "Bryanna Ortiz", "2026-03-20 10:00", "2026-03-20 10:30"));
-        slots.add(new TimeSlot(3L, "Bryanna Ortiz", "2026-03-21 13:00", "2026-03-21 13:30"));
-        slots.add(new TimeSlot(4L, "Monica Serna",  "2026-03-22 11:00", "2026-03-22 11:30"));
-        slots.add(new TimeSlot(5L, "Monica Serna",  "2026-03-23 14:00", "2026-03-23 14:30"));
+    public TimeSlotRepository(JdbcTemplate db) {
+        this.db = db;
     }
 
     public List<TimeSlot> findOpenSlots() {
-        return slots.stream().filter(TimeSlot::isOpen).collect(Collectors.toList());
+        return db.query("SELECT * FROM time_slots WHERE open = 1 ORDER BY slot_id", this::map);
+    }
+
+    public List<TimeSlot> findAll() {
+        return db.query("SELECT * FROM time_slots ORDER BY slot_id", this::map);
     }
 
     public Optional<TimeSlot> findById(Long id) {
-        return slots.stream().filter(s -> s.getSlotId().equals(id)).findFirst();
+        List<TimeSlot> rows = db.query("SELECT * FROM time_slots WHERE slot_id = ?", this::map, id);
+        return rows.isEmpty() ? Optional.empty() : Optional.of(rows.get(0));
     }
 
-    public boolean markBooked(Long id, int expected) {
-        Optional<TimeSlot> found = findById(id);
-        if (found.isEmpty()) return false;
-        TimeSlot ts = found.get();
-        if (ts.getVersion() != expected) return false;
-        ts.setOpen(false);
-        ts.setVersion(expected + 1);
-        return true;
+    public boolean markBooked(Long id, int ver) {
+        int rows = db.update(
+            "UPDATE time_slots SET open = 0, version = version + 1 WHERE slot_id = ? AND version = ? AND open = 1",
+            id, ver
+        );
+        return rows == 1;
+    }
+
+    public void markOpen(Long id) {
+        db.update("UPDATE time_slots SET open = 1, version = version + 1 WHERE slot_id = ?", id);
+    }
+
+    public void save(TimeSlot ts) {
+        db.update(
+            "INSERT INTO time_slots (advisor_name, start_time, end_time, open, version) VALUES (?, ?, ?, 1, 0)",
+            ts.getAdvisorName(), ts.getStartTime(), ts.getEndTime()
+        );
+    }
+
+    public boolean delete(Long id) {
+        int rows = db.update("DELETE FROM time_slots WHERE slot_id = ? AND open = 1", id);
+        return rows == 1;
+    }
+
+    private TimeSlot map(ResultSet rs, int n) throws SQLException {
+        TimeSlot ts = new TimeSlot();
+        ts.setSlotId(rs.getLong("slot_id"));
+        ts.setAdvisorName(rs.getString("advisor_name"));
+        ts.setStartTime(rs.getString("start_time"));
+        ts.setEndTime(rs.getString("end_time"));
+        ts.setOpen(rs.getInt("open") == 1);
+        ts.setVersion(rs.getInt("version"));
+        return ts;
     }
 }

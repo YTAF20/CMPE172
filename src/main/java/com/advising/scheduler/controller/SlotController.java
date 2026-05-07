@@ -14,21 +14,21 @@ import java.util.Optional;
 @RequestMapping("/slots")
 public class SlotController {
 
-    private final TimeSlotService slotService;
+    private final TimeSlotService svc;
 
-    public SlotController(TimeSlotService slotService) {
-        this.slotService = slotService;
+    public SlotController(TimeSlotService svc) {
+        this.svc = svc;
     }
 
     @GetMapping
     public String viewSlots(Model model) {
-        model.addAttribute("slots", slotService.getOpenSlots());
+        model.addAttribute("slots", svc.getOpenSlots());
         return "slots";
     }
 
     @GetMapping("/{id}/book")
     public String bookForm(@PathVariable Long id, Model model) {
-        Optional<TimeSlot> slot = slotService.getSlotById(id);
+        Optional<TimeSlot> slot = svc.getSlotById(id);
         if (slot.isEmpty() || !slot.get().isOpen()) {
             return "redirect:/slots";
         }
